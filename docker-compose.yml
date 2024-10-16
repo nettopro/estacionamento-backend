@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_USERNAME=sccaeia
+      - POSTGRESQL_PASSWORD=sccaeia
+      - POSTGRESQL_DATABASE=sccaeia
+    volumes:
+      - postgres_pg_data:/bitnami/postgresql
+
+volumes:
+  postgres_pg_data:
