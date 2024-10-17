@@ -46,10 +46,11 @@ model Cliente {
 
 model EntradaSaida {
   id        Int      @id @default(autoincrement())
+  placa    String
   estacionamento Estacionamento @relation(fields: [estacionamentoId], references: [id])
   estacionamentoId Int
   data_entrada DateTime @default(now())
   data_saida DateTime?
   valor_pago Float?
-  pago Boolean
+  pago Boolean @default(false)
 }
