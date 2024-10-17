@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import fastify from "fastify";
 import { z } from "zod";
+import { ClienteRoutes } from "./routes/cliente";
+import { EstacionamentoRoutes } from "./routes/estacionamento";
+import { EntradaSaidaRoutes } from "./routes/entradaSaida";
+import { FuncionarioRoutes } from "./routes/funcionario";
 
 const app = fastify();
 
@@ -10,35 +14,10 @@ app.get("/", async () => {
 	return { hello: "world" };
 });
 
-app.get("/estacionamentos", async () => {
-	const estacionamentos = await prisma.estacionamento.findMany();
-	return estacionamentos;
-});
-
-app.post("/estacionamentos", async (request, reply) => {
-	const createEstacionamentoSchema = z.object({
-		nome: z.string(),
-		endereco: z.string(),
-		telefone: z.string(),
-		vagas: z.number(),
-		valor_hora: z.number(),
-	});
-
-	const { nome, endereco, telefone, vagas, valor_hora } =
-		createEstacionamentoSchema.parse(request.body);
-
-	await prisma.estacionamento.create({
-		data: {
-			nome,
-			endereco,
-			telefone,
-			vagas,
-			valor_hora,
-		},
-	});
-
-	return reply.status(201).send();
-});
+app.register(ClienteRoutes, { prefix: "/clientes" });
+app.register(EstacionamentoRoutes, { prefix: "/estacionamentos" });
+app.register(EntradaSaidaRoutes, { prefix: "/entradas-saidas" });
+app.register(FuncionarioRoutes, { prefix: "/funcionarios" });
 
 app
 	.listen({
