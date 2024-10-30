@@ -17,10 +17,19 @@ model Funcionario {
   id        Int      @id @default(autoincrement())
   nome      String
   senha     String
+  cargo     Cargo @relation(fields: [cargoId], references: [id])
+  cargoId   Int
   ativo    Boolean @default(true)
   estacionamento Estacionamento @relation(fields: [estacionamentoId], references: [id])
   estacionamentoId Int
   created_at DateTime @default(now())
+}
+
+model Cargo {
+  id        Int      @id @default(autoincrement())
+  descricao      String
+  created_at DateTime @default(now())
+  funcionarios Funcionario[]
 }
 
 model Estacionamento {
