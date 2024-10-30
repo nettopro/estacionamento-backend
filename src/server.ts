@@ -1,23 +1,27 @@
-import { PrismaClient } from "@prisma/client";
 import fastify from "fastify";
-import { z } from "zod";
+import cors from "@fastify/cors";
 import { ClienteRoutes } from "./routes/cliente";
 import { EstacionamentoRoutes } from "./routes/estacionamento";
 import { EntradaSaidaRoutes } from "./routes/entradaSaida";
 import { FuncionarioRoutes } from "./routes/funcionario";
+import { CargoRoutes } from "./routes/cargo";
 
 const app = fastify();
 
-const prisma = new PrismaClient();
-
 app.get("/", async () => {
 	return { hello: "world" };
+});
+
+app.register(cors, {
+	origin: "*",
+	methods: ["GET", "POST", "PUT", "DELETE"],
 });
 
 app.register(ClienteRoutes, { prefix: "/clientes" });
 app.register(EstacionamentoRoutes, { prefix: "/estacionamentos" });
 app.register(EntradaSaidaRoutes, { prefix: "/entradas-saidas" });
 app.register(FuncionarioRoutes, { prefix: "/funcionarios" });
+app.register(CargoRoutes, { prefix: "/cargos" });
 
 app
 	.listen({

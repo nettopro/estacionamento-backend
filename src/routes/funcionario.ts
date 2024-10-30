@@ -6,24 +6,57 @@ const prisma = new PrismaClient();
 
 export const FuncionarioRoutes = async (server: FastifyInstance) => {
 	server.get("/", async () => {
-		return await prisma.funcionario.findMany();
+		return await prisma.funcionario.findMany({
+			select: {
+				id: true,
+				nome: true,
+				senha: true,
+				cargo: true,
+				estacionamento: true,
+			},
+		});
 	});
 
 	server.post("/", async (request, reply) => {
 		const createFuncionarioSchema = z.object({
 			nome: z.string(),
 			senha: z.string(),
+			cargo: z.number(),
 			estacionamento: z.number(),
 		});
 
-		const { nome, senha, estacionamento } = createFuncionarioSchema.parse(
-			request.body
-		);
+		const { nome, senha, cargo, estacionamento } =
+			createFuncionarioSchema.parse(request.body);
+
+		const cargoExiste = await prisma.cargo.findUnique({
+			where: {
+				id: cargo,
+			},
+		});
+
+		if (!cargoExiste) {
+			return reply.status(400).send("Cargo inválido");
+		}
+
+		const estacionamentoExiste = await prisma.estacionamento.findUnique({
+			where: {
+				id: estacionamento,
+			},
+		});
+
+		if (!estacionamentoExiste) {
+			return reply.status(400).send("Estacionamento inválido");
+		}
 
 		await prisma.funcionario.create({
 			data: {
 				nome,
 				senha,
+				cargo: {
+					connect: {
+						id: cargo,
+					},
+				},
 				estacionamento: {
 					connect: {
 						id: estacionamento,
@@ -42,6 +75,10 @@ export const FuncionarioRoutes = async (server: FastifyInstance) => {
 			where: {
 				id: Number(id),
 			},
+			include: {
+				cargo: true,
+				estacionamento: true,
+			},
 		});
 	});
 
@@ -50,12 +87,33 @@ export const FuncionarioRoutes = async (server: FastifyInstance) => {
 		const updateFuncionarioSchema = z.object({
 			nome: z.string(),
 			senha: z.string(),
+			cargo: z.number(),
 			estacionamento: z.number(),
+			ativo: z.boolean(),
 		});
 
-		const { nome, senha, estacionamento } = updateFuncionarioSchema.parse(
-			request.body
-		);
+		const { nome, senha, cargo, estacionamento, ativo } =
+			updateFuncionarioSchema.parse(request.body);
+
+		const cargoExiste = await prisma.cargo.findUnique({
+			where: {
+				id: cargo,
+			},
+		});
+
+		if (!cargoExiste) {
+			return reply.status(400).send("Cargo inválido");
+		}
+
+		const estacionamentoExiste = await prisma.estacionamento.findUnique({
+			where: {
+				id: estacionamento,
+			},
+		});
+
+		if (!estacionamentoExiste) {
+			return reply.status(400).send("Estacionamento inválido");
+		}
 
 		await prisma.funcionario.update({
 			where: {
@@ -64,11 +122,17 @@ export const FuncionarioRoutes = async (server: FastifyInstance) => {
 			data: {
 				nome,
 				senha,
+				cargo: {
+					connect: {
+						id: cargo,
+					},
+				},
 				estacionamento: {
 					connect: {
 						id: estacionamento,
 					},
 				},
+				ativo,
 			},
 		});
 
@@ -103,10 +167,14 @@ export const FuncionarioRoutes = async (server: FastifyInstance) => {
 				nome,
 				senha,
 			},
+			include: {
+				cargo: true,
+				estacionamento: true,
+			},
 		});
 
 		if (!funcionario) {
-			return reply.status(401).send();
+			return reply.status(401).send("Credenciais inválidas");
 		}
 
 		return funcionario;
@@ -120,6 +188,10 @@ export const FuncionarioRoutes = async (server: FastifyInstance) => {
 				estacionamento: {
 					id: Number(id),
 				},
+			},
+			include: {
+				cargo: true,
+				estacionamento: true,
 			},
 		});
 	});

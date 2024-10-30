@@ -19,6 +19,16 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 			request.body
 		);
 
+		const estacionamentoExiste = await prisma.estacionamento.findUnique({
+			where: {
+				id: estacionamento,
+			},
+		});
+
+		if (!estacionamentoExiste) {
+			return reply.status(400).send("Estacionamento inválido");
+		}
+
 		const existingEntradaSaida = await prisma.entradaSaida.findFirst({
 			where: {
 				placa: placa,
@@ -158,6 +168,21 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 		});
 
 		return reply.status(204).send();
+	});
+
+	server.get("/placa/:placa/listar", async (request, reply) => {
+		const { placa } = request.params as { placa: string };
+
+		const entradasSaidas = await prisma.entradaSaida.findMany({
+			where: {
+				placa: placa,
+			},
+			include: {
+				estacionamento: true,
+			},
+		});
+
+		return entradasSaidas;
 	});
 };
 
