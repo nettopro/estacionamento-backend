@@ -63,6 +63,9 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 					id: parseInt(id),
 				},
 			},
+			include: {
+				estacionamento: true,
+			},
 		});
 
 		return entradasSaidas;
