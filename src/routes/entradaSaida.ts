@@ -71,31 +71,23 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 	server.get("/placa/:placa", async (request, reply) => {
 		const { placa } = request.params as { placa: string };
 
-		const entradaSaida = await prisma.entradaSaida.findFirst({
+		const entradasSaidas = await prisma.entradaSaida.findMany({
 			where: {
 				placa: placa,
 			},
 			include: {
 				estacionamento: true,
 			},
+			orderBy: {
+				data_entrada: "desc",
+			},
 		});
 
-		if (!entradaSaida) {
+		if (entradasSaidas.length === 0) {
 			return reply.status(404).send("Veículo não encontrado");
 		}
 
-		const { estacionamento, data_entrada } = entradaSaida;
-		const { valor_hora } = estacionamento;
-
-		const valor_a_pagar = calculaPagamento(data_entrada, valor_hora);
-
-		return {
-			horarios: {
-				entrada: data_entrada,
-			},
-			valor_a_pagar,
-			estacionamento,
-		};
+		return entradasSaidas;
 	});
 
 	server.put("/placa/:placa/pagamento", async (request, reply) => {
