@@ -40,6 +40,22 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 			return reply.status(400).send("Veículo já está estacionado");
 		}
 
+		const numeroVeiculosEstacionados = await prisma.entradaSaida.count({
+			where: {
+				estacionamento: {
+					id: estacionamento,
+				},
+				data_saida: null,
+			},
+		});
+
+		const estacionamentoLotado =
+			numeroVeiculosEstacionados >= estacionamentoExiste.vagas;
+
+		if (estacionamentoLotado) {
+			return reply.status(400).send("Estacionamento lotado");
+		}
+
 		await prisma.entradaSaida.create({
 			data: {
 				placa,
