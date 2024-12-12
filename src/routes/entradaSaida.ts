@@ -56,6 +56,21 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 			return reply.status(400).send("Estacionamento lotado");
 		}
 
+		const mensalista = await prisma.mensalidade.findFirst({
+			where: {
+				placa,
+			},
+			orderBy: {
+				data_pagamento: "desc",
+			},
+		});
+
+		const mensalidadeAtiva =
+			(mensalista &&
+				new Date().getTime() - new Date(mensalista.data_pagamento).getTime() <
+					30 * 24 * 60 * 60 * 1000) ||
+			false;
+
 		await prisma.entradaSaida.create({
 			data: {
 				placa,
@@ -64,6 +79,7 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 						id: estacionamento,
 					},
 				},
+				pago: mensalidadeAtiva,
 			},
 		});
 
@@ -72,6 +88,16 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 
 	server.get("/estacionamento/:id", async (request, reply) => {
 		const { id } = request.params as { id: string };
+
+		const estacionamento = await prisma.estacionamento.findUnique({
+			where: {
+				id: parseInt(id),
+			},
+		});
+
+		if (!estacionamento) {
+			return reply.status(404).send("Estacionamento não encontrado");
+		}
 
 		const entradasSaidas = await prisma.entradaSaida.findMany({
 			where: {
@@ -138,6 +164,7 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 			},
 			data: {
 				valor_pago: valor_a_pagar,
+				data_pagamento: new Date(),
 				pago: true,
 			},
 		});

@@ -5,6 +5,7 @@ import { EstacionamentoRoutes } from "./routes/estacionamento";
 import { EntradaSaidaRoutes } from "./routes/entradaSaida";
 import { FuncionarioRoutes } from "./routes/funcionario";
 import { CargoRoutes } from "./routes/cargo";
+import { MensalidadeRoutes } from "./routes/mensalidade";
 
 const app = fastify();
 
@@ -22,6 +23,7 @@ app.register(EstacionamentoRoutes, { prefix: "/estacionamentos" });
 app.register(EntradaSaidaRoutes, { prefix: "/entradas-saidas" });
 app.register(FuncionarioRoutes, { prefix: "/funcionarios" });
 app.register(CargoRoutes, { prefix: "/cargos" });
+app.register(MensalidadeRoutes, { prefix: "/mensalidades" });
 
 app
 	.listen({
