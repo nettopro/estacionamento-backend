@@ -1,0 +1,1 @@
+ALTER DATABASE sccaeia SET timezone TO 'America/Sao_Paulo';

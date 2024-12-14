@@ -30,15 +30,25 @@ app.register(CargoRoutes, { prefix: "/cargos" });
 async function verificarTolerancia() {
   try {
     await prisma.$executeRaw`SELECT verificar_tolerancia();`;
-    console.log("Stored procedure executed successfully");
+    console.log("tolerancia verificada");
   } catch (error) {
-    console.error("Error executing stored procedure:", error);
+    console.error("erro ao verificar tolerancia", error);
+  }
+}
+
+async function calcularValorAPagar() {
+  try {
+    await prisma.$executeRaw`SELECT calcular_valor_a_pagar();`;
+    console.log("valor calculado");
+  } catch (error) {
+    console.error("erro valor calculado", error);
   }
 }
 
 // Schedule the stored procedure to run every minute
 const job = new CronJob("* * * * *", () => {
   verificarTolerancia();
+  calcularValorAPagar();
 });
 
 job.start();
