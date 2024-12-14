@@ -25,6 +25,7 @@ app.register(EstacionamentoRoutes, { prefix: "/estacionamentos" });
 app.register(EntradaSaidaRoutes, { prefix: "/entradas-saidas" });
 app.register(FuncionarioRoutes, { prefix: "/funcionarios" });
 app.register(CargoRoutes, { prefix: "/cargos" });
+app.register(MensalidadeRoutes, { prefix: "/mensalidades" });
 
 // Function to call the stored procedure
 async function verificarTolerancia() {

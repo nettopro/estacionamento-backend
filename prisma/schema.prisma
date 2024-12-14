@@ -39,9 +39,11 @@ model Estacionamento {
   telefone  String
   vagas     Int
   valor_hora Float
+  valor_mensalidade Float?
   ativo     Boolean @default(true)
   funcionarios  Funcionario[]
   entradasSaidas EntradaSaida[]
+  mensalidades Mensalidade[]
   created_at DateTime @default(now())
 }
 
@@ -63,4 +65,13 @@ model EntradaSaida {
   valor_a_pagar Float?
   data_pagamento DateTime?
   pago Boolean @default(false)
+}
+
+model Mensalidade {
+  id        Int      @id @default(autoincrement())
+  placa    String
+  estacionamento Estacionamento @relation(fields: [estacionamentoId], references: [id])
+  estacionamentoId Int
+  data_pagamento DateTime @default(now())
+  valor_pago Float  
 }
