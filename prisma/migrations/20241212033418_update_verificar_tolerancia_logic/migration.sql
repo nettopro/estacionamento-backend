@@ -21,8 +21,8 @@ BEGIN
                 data_saida = DATA_TOLERANCIA
             WHERE id = rec.id;
 
-            INSERT INTO "EntradaSaida" (placa, data_entrada, estacionamentoId)
-            VALUES (rec.placa, DATA_TOLERANCIA, rec.estacionamentoId);
+            INSERT INTO "EntradaSaida" (placa, data_entrada, "estacionamentoId")
+            VALUES (rec.placa, DATA_TOLERANCIA, rec."estacionamentoId");
         END IF;
     END LOOP;
 END;

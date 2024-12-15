@@ -174,6 +174,122 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 		};
 	});
 
+	server.get("/estacionamento/:id/dashboard", async (request, reply) => {
+		const dashboardEntradaSaidaSchema = z.object({
+			data_inicio: z.string(),
+			data_fim: z.string(),
+		});
+
+		const { id } = request.params as { id: string };
+
+		const { data_inicio, data_fim } = dashboardEntradaSaidaSchema.parse(
+			request.query
+		);
+
+		const estacionamentoExiste = await prisma.estacionamento.findUnique({
+			where: {
+				id: parseInt(id),
+			},
+		});
+
+		if (!estacionamentoExiste) {
+			return reply.status(404).send("Estacionamento não encontrado");
+		}
+
+		const entradasSaidas = await prisma.entradaSaida.findMany({
+			where: {
+				estacionamento: {
+					id: parseInt(id),
+				},
+				data_entrada: {
+					gte: new Date(data_inicio),
+				},
+				data_saida: {
+					lte: new Date(data_fim),
+				},
+			},
+		});
+
+		const mensalidades = await prisma.mensalidade.findMany({
+			where: {
+				estacionamento: {
+					id: parseInt(id),
+				},
+				data_pagamento: {
+					gte: new Date(data_inicio),
+					lte: new Date(data_fim),
+				},
+			},
+		});
+
+		const meses = [];
+		let dataAtual = new Date(data_inicio);
+
+		while (dataAtual <= new Date(data_fim)) {
+			const mes = dataAtual.toLocaleString("default", {
+				month: "numeric",
+				year: "numeric",
+			});
+			meses.push(mes);
+			dataAtual.setMonth(dataAtual.getMonth() + 1);
+		}
+
+		const resultado = meses.map((m) => {
+			const [mes, ano] = m.split("/").map(Number);
+
+			const veiculosEstacionados = entradasSaidas.filter((es) => {
+				const dataEntrada = new Date(es.data_entrada);
+				return (
+					dataEntrada.getMonth() + 1 === mes &&
+					dataEntrada.getFullYear() === ano
+				);
+			}).length;
+
+			let totalArrecadado = entradasSaidas.reduce((total, es) => {
+				const dataEntrada = new Date(es.data_entrada);
+				const mensalidadeAtiva = mensalidades.find((m) => {
+					const finalMensalidade = new Date(m.data_pagamento).setMonth(
+						new Date(m.data_pagamento).getMonth() + 1
+					);
+					return (
+						m.placa === es.placa &&
+						dataEntrada >= new Date(m.data_pagamento) &&
+						dataEntrada < new Date(finalMensalidade)
+					);
+				});
+				if (
+					dataEntrada.getMonth() + 1 === mes &&
+					dataEntrada.getFullYear() === ano &&
+					!mensalidadeAtiva
+				) {
+					return total + (es.pago ? es.valor_a_pagar! : 0);
+				}
+				return total;
+			}, 0);
+
+			const totalMensalidades = mensalidades.reduce((total, mensalidade) => {
+				const dataPagamento = new Date(mensalidade.data_pagamento);
+				if (
+					dataPagamento.getMonth() + 1 === mes &&
+					dataPagamento.getFullYear() === ano
+				) {
+					return total + mensalidade.valor_pago;
+				}
+				return total;
+			}, 0);
+
+			totalArrecadado += totalMensalidades;
+
+			return {
+				mes: m,
+				totalArrecadado,
+				veiculosEstacionados,
+			};
+		});
+
+		return resultado;
+	});
+
 	server.put("/placa/:placa/saida", async (request, reply) => {
 		const { placa } = request.params as { placa: string };
 
