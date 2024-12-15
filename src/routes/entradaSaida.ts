@@ -33,7 +33,9 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 		const existingEntradaSaida = await prisma.entradaSaida.findFirst({
 			where: {
 				placa: placa,
-				data_saida: null,
+				data_saida: {
+					
+				},
 			},
 		});
 

@@ -7,20 +7,22 @@ CREATE OR REPLACE FUNCTION verificar_tolerancia()
 RETURNS void AS $$
 DECLARE
     rec RECORD;
+    DATA_TOLERANCIA TIMESTAMP;
 BEGIN
     FOR rec IN
         SELECT id, placa, data_pagamento, data_saida, valor_a_pagar, "estacionamentoId"
         FROM "EntradaSaida"
         WHERE pago = true AND data_saida IS NOT NULL AND data_pagamento IS NOT NULL
     LOOP
-        IF rec.data_saida > rec.data_pagamento + interval '15 minutes' THEN
+        DATA_TOLERANCIA := rec.data_pagamento + interval '15 minutes';
+        IF now() > DATA_TOLERANCIA THEN
             UPDATE "EntradaSaida"
-            SET valor_a_pagar = (SELECT valor_hora FROM "Estacionamento" WHERE id = rec."estacionamentoId"),
-                data_entrada = now(),
-                data_saida = null,
-                data_pagamento = null,
-                pago = false
+            SET 
+                data_saida = DATA_TOLERANCIA
             WHERE id = rec.id;
+
+            INSERT INTO "EntradaSaida" (placa, data_entrada, estacionamentoId)
+            VALUES (rec.placa, DATA_TOLERANCIA, rec.estacionamentoId);
         END IF;
     END LOOP;
 END;
