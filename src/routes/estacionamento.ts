@@ -16,9 +16,10 @@ export const EstacionamentoRoutes = async (server: FastifyInstance) => {
 			telefone: z.string(),
 			vagas: z.number(),
 			valor_hora: z.number(),
+			valor_mensalidade: z.number(),
 		});
 
-		const { nome, endereco, telefone, vagas, valor_hora } =
+		const { nome, endereco, telefone, vagas, valor_hora, valor_mensalidade } =
 			createEstacionamentoSchema.parse(request.body);
 
 		await prisma.estacionamento.create({
@@ -28,6 +29,7 @@ export const EstacionamentoRoutes = async (server: FastifyInstance) => {
 				telefone,
 				vagas,
 				valor_hora,
+				valor_mensalidade,
 			},
 		});
 
@@ -52,9 +54,10 @@ export const EstacionamentoRoutes = async (server: FastifyInstance) => {
 			telefone: z.string(),
 			vagas: z.number(),
 			valor_hora: z.number(),
+			valor_mensalidade: z.number(),
 		});
 
-		const { nome, endereco, telefone, vagas, valor_hora } =
+		const { nome, endereco, telefone, vagas, valor_hora, valor_mensalidade } =
 			updateEstacionamentoSchema.parse(request.body);
 
 		await prisma.estacionamento.update({
@@ -67,6 +70,7 @@ export const EstacionamentoRoutes = async (server: FastifyInstance) => {
 				telefone,
 				vagas,
 				valor_hora,
+				valor_mensalidade,
 			},
 		});
 
