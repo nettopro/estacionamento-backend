@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { FastifyInstance } from "fastify";
+import { get } from "http";
 import { z } from "zod";
 
 const prisma = new PrismaClient();
@@ -128,16 +129,13 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 		}
 
 		const { estacionamento, data_entrada } = entradaSaida;
-		const { valor_hora } = estacionamento;
-
-		const valor_a_pagar = calculaPagamento(data_entrada, valor_hora);
 
 		await prisma.entradaSaida.update({
 			where: {
 				id: entradaSaida.id,
 			},
 			data: {
-				valor_a_pagar: valor_a_pagar,
+				data_pagamento: new Date(),
 				pago: true,
 			},
 		});
@@ -146,7 +144,6 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 			horarios: {
 				entrada: data_entrada,
 			},
-			valor_pago: valor_a_pagar,
 			estacionamento,
 		};
 	});
@@ -195,14 +192,4 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 
 		return entradasSaidas;
 	});
-};
-
-const calculaPagamento = (data_entrada: Date, valor_hora: number) => {
-	const now = new Date();
-	const diffInHours = Math.ceil(
-		(now.getTime() - data_entrada.getTime()) / (1000 * 60 * 60)
-	);
-	const valor_a_pagar = valor_hora * diffInHours;
-
-	return valor_a_pagar;
 };
