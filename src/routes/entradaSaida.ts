@@ -33,9 +33,7 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 		const existingEntradaSaida = await prisma.entradaSaida.findFirst({
 			where: {
 				placa: placa,
-				data_saida: {
-					
-				},
+				data_saida: null,
 			},
 		});
 
@@ -88,7 +86,7 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 
 		return reply.status(201).send();
 	});
-
+	
 	server.get("/estacionamento/:id", async (request, reply) => {
 		const { id } = request.params as { id: string };
 
