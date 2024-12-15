@@ -62,7 +62,7 @@ model EntradaSaida {
   estacionamentoId Int
   data_entrada DateTime @default(now())
   data_saida DateTime?
-  valor_pago Float?
+  valor_a_pagar Float?
   data_pagamento DateTime?
   pago Boolean @default(false)
 }
