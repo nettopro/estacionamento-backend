@@ -137,7 +137,7 @@ export const EntradaSaidaRoutes = async (server: FastifyInstance) => {
 				id: entradaSaida.id,
 			},
 			data: {
-				valor_pago: valor_a_pagar,
+				valor_a_pagar: valor_a_pagar,
 				pago: true,
 			},
 		});
